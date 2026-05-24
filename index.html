@@ -1,1 +1,861 @@
-SOON
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Resumio — Smart Resume Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F0F6FA;--surface:#FFFFFF;--border:#D6E4ED;--border-light:#E8F0F5;
+  --text:#03045E;--muted:#5A6B7D;--accent:#0077B6;--accent-light:#E6F4FA;
+  --accent2:#00B4D8;--accent2-light:#E0F7FC;--warn:#B85C00;--warn-light:#FFF3E8;
+  --tag-bg:#E8F0F5;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:8px;--r-lg:12px;--shadow:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 16px rgba(0,0,0,0.08);
+  --topbar:52px;--nav-h:52px;
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px}
+/* ── DESKTOP LAYOUT ─────────────────────────── */
+.app{display:grid;grid-template-columns:220px 1fr 290px;grid-template-rows:var(--topbar) 1fr;height:100vh;background:radial-gradient(ellipse at 50% 0%,#D6ECFA 0%,var(--bg) 65%)}
+
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar{
+  grid-column:1/-1;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;gap:10px;z-index:100;
+  position:sticky;top:0;
+}
+.logo{font-weight:600;font-size:15px;letter-spacing:-0.4px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.logo-mark{width:24px;height:24px;background:linear-gradient(135deg,#0077B6,#00B4D8);border-radius:7px;display:grid;place-items:center;position:relative;overflow:hidden}
+.logo-mark::after{content:'';position:absolute;bottom:-2px;left:-4px;right:-4px;height:6px;background:rgba(255,255,255,.25);border-radius:50% 50% 0 0}
+.logo-mark span{color:#fff;font-size:13px;font-weight:700;line-height:1;position:relative;z-index:1}
+.logo-text{font-weight:600;font-size:15px;letter-spacing:-.3px}
+.logo-text em{background:linear-gradient(135deg,#0077B6,#00B4D8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+.topbar-center{display:flex;align-items:center;gap:8px}
+.ats-live{display:flex;align-items:center;gap:5px;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}
+.live-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.topbar-r{display:flex;gap:6px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .12s;white-space:nowrap}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#02649e}
+.btn-icon{padding:7px;aspect-ratio:1;border-radius:var(--r)}
+
+/* ── LEFT NAV ───────────────────────────────── */
+.sidenav{
+  background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:14px 0;
+  /* desktop only */
+}
+.nav-group{padding:0 10px;margin-bottom:2px}
+.nav-group-label{font-size:9.5px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);padding:0 7px;margin:12px 0 5px}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:7px;border-radius:var(--r);border:none;background:none;font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;text-align:left;transition:all .1s}
+.nav-btn:hover{background:var(--bg);color:var(--text)}
+.nav-btn.active{background:var(--accent-light);color:var(--accent)}
+.nav-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.strength-box{margin:14px 10px;padding:12px;background:var(--bg);border-radius:var(--r-lg);border:1px solid var(--border-light)}
+.strength-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.strength-label{font-size:11px;font-weight:600;color:var(--text)}
+.strength-pct{font-size:11px;font-weight:600;color:var(--accent)}
+.bar{height:5px;background:var(--border);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s;background:linear-gradient(90deg,#0077B6,#00B4D8);position:relative;overflow:hidden}
+.bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.35) 50%,transparent 100%);transform:translateX(-100%);animation:shimmer 3s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}50%{transform:translateX(100%)}100%{transform:translateX(100%)}}
+.ats-row{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light)}
+.ats-label{font-size:10px;color:var(--muted)}
+.ats-val{font-size:12px;font-weight:600;color:var(--accent2)}
+.add-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 10px}
+.chip{padding:4px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .1s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+
+/* ── EDITOR ─────────────────────────────────── */
+.editor{overflow-y:auto;padding:24px;background:var(--bg)}
+.editor-wrap{max-width:660px;margin:0 auto}
+
+/* ── RESUME PAPER ───────────────────────────── */
+.resume-paper{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden}
+.resume-head{background:linear-gradient(135deg,#023E8A,#03045E);padding:24px 28px 24px;position:relative}
+.resume-head::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:12px;background:var(--surface);border-radius:12px 12px 0 0}
+.r-name{width:100%;background:transparent;border:none;outline:none;font-family:'Georgia',serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.2}
+.r-name::placeholder{color:rgba(255,255,255,.3)}
+.r-headline{width:100%;background:transparent;border:none;outline:none;font-family:var(--font);font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+.r-headline::placeholder{color:rgba(255,255,255,.25)}
+.r-contacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.r-contact{width:150px;background:transparent;border:none;outline:none;font-size:11px;color:rgba(255,255,255,.55);font-family:var(--font)}
+.r-contact::placeholder{color:rgba(255,255,255,.25)}
+.resume-body{display:grid;grid-template-columns:1fr 175px;gap:22px;padding:16px 28px 22px}
+.sec-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding-bottom:3px;margin-bottom:10px;position:relative}
+.sec-title::after{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);margin-top:3px;border-radius:1px}
+.entry{padding:6px;border-radius:6px;cursor:text;transition:background .12s;position:relative}
+.entry:hover{background:rgba(26,107,74,.04)}
+.entry:focus-within{background:rgba(26,107,74,.05)}
+.entry-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.e-company{flex:1;background:transparent;border:none;outline:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text)}
+.e-company::placeholder{color:var(--muted)}
+.e-date{background:transparent;border:none;outline:none;font-family:var(--font);font-size:10px;color:var(--muted);text-align:right;min-width:60px}
+.e-date::placeholder{color:var(--border)}
+.e-role{width:100%;background:transparent;border:none;outline:none;font-family:var(--font);font-size:11px;font-style:italic;color:var(--muted);margin:1px 0}
+.e-role::placeholder{color:var(--border)}
+.e-bullet{width:100%;background:transparent;border:none;outline:none;font-family:var(--font);font-size:11px;color:var(--text);line-height:1.5;resize:none;display:block}
+.e-bullet::placeholder{color:#ccc}
+.bullets-list{list-style:disc;padding-left:14px;margin-top:4px}
+.bullets-list li{margin-bottom:2px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:5px;border:1px dashed var(--border);border-radius:var(--r);background:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .1s;margin-top:6px}
+.add-btn:hover{background:var(--bg);color:var(--accent);border-color:var(--accent)}
+.section-mb{margin-bottom:18px}
+.skill-pills{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
+.s-pill{background:var(--tag-bg);color:var(--text);border-radius:3px;padding:2px 7px;font-size:10.5px;cursor:pointer;font-family:var(--font);border:none;transition:background .1s}
+.s-pill:hover{background:var(--border)}
+.s-input-row{display:flex;gap:5px}
+.s-input{flex:1;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:11px;font-family:var(--font);outline:none;background:var(--bg)}
+.s-input:focus{border-color:var(--accent)}
+.s-add{padding:4px 8px;background:var(--text);color:#fff;border:none;border-radius:5px;font-size:11px;cursor:pointer;font-family:var(--font)}
+.small-textarea{width:100%;background:transparent;border:none;outline:none;font-size:11px;font-family:var(--font);color:var(--text);resize:none;min-height:50px;line-height:1.5}
+.small-textarea::placeholder{color:var(--border)}
+
+/* ── AI PANEL ───────────────────────────────── */
+.ai-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-top{padding:14px 14px 0;border-bottom:1px solid var(--border-light)}
+.panel-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.ai-pulse{width:7px;height:7px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;box-shadow:0 0 8px rgba(0,180,216,.5)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.panel-sub{font-size:10.5px;color:var(--muted);margin-bottom:10px}
+.tabs{display:flex;gap:2px;padding:3px;background:var(--bg);border-radius:var(--r);margin-bottom:12px}
+.tab{flex:1;padding:5px 4px;border:none;background:none;border-radius:6px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .1s}
+.tab.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.panel-scroll{flex:1;overflow-y:auto;padding:12px 14px}
+
+/* ── SUGGESTION CARDS ───────────────────────── */
+.suggestion-card{background:var(--bg);border:1px solid var(--border-light);border-radius:10px;padding:11px 13px;margin-bottom:9px;transition:box-shadow .12s}
+.suggestion-card:hover{box-shadow:var(--shadow)}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px}
+.sc-role{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.3}
+.match-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.m-high{background:var(--accent-light);color:var(--accent)}
+.m-mid{background:var(--accent2-light);color:var(--accent2)}
+.m-low{background:var(--warn-light);color:var(--warn)}
+.sc-companies{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.co-tag{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--muted)}
+.sc-chips{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px}
+.s-chip{border-radius:4px;padding:1px 6px;font-size:9.5px;font-weight:500}
+.s-chip-have{background:var(--accent-light);color:var(--accent)}
+.s-chip-miss{background:var(--warn-light);color:var(--warn)}
+.sc-insight{font-size:10.5px;color:var(--muted);line-height:1.5;margin-bottom:7px}
+.sc-salary{font-size:10px;color:var(--muted);margin-bottom:7px}
+.apply-btn{width:100%;padding:5px;background:var(--text);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font)}
+.apply-btn:active{background:#02256e}
+.tip-card{border-radius:var(--r);padding:9px 11px;margin-bottom:7px;font-size:10.5px}
+.tip-warn{background:var(--warn-light);color:var(--warn)}
+.tip-good{background:var(--accent-light);color:var(--accent)}
+.tip-title{font-weight:600;display:block;margin-bottom:2px;font-size:11px}
+.thinking{display:flex;align-items:center;gap:8px;padding:16px;color:var(--muted);font-size:11px}
+.dots span{display:inline-block;width:5px;height:5px;background:var(--accent2);border-radius:50%;animation:db 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-4px);opacity:1}}
+.panel-footer{padding:10px 14px;border-top:1px solid var(--border)}
+.analyze-btn{width:100%;padding:9px;background:linear-gradient(135deg,#0077B6,#00B4D8);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.analyze-btn:hover{box-shadow:0 4px 16px rgba(0,119,182,.3);transform:translateY(-1px)}
+.analyze-btn:active{background:#0296b3}
+.analyze-btn:disabled{opacity:.6;cursor:default}
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+.empty-icon{font-size:32px;margin-bottom:10px;display:block}
+.empty-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.empty-body{font-size:11px;line-height:1.6}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px;opacity:.5}
+::-webkit-scrollbar-track{background:var(--bg)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#023E8A,#0077B6);color:#fff;padding:8px 18px;border-radius:var(--r);font-size:12px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;box-shadow:0 4px 20px rgba(2,62,138,.3)}
+@media print{.sidenav,.topbar-r,.ai-panel,.ats-live,.mobile-nav,.fab{display:none!important}.app{display:block}.editor{overflow:visible;padding:0}.resume-paper{box-shadow:none;border:none;border-radius:0}}
+
+/* ══════════════════════════════════════════════
+   MOBILE OVERRIDES (≤ 768px)
+══════════════════════════════════════════════ */
+@media(max-width:768px){
+  html,body{overflow:hidden;height:100%;height:100dvh}
+
+  /* Redefine grid: single-column, no sidenav/ai-panel */
+  .app{
+    display:flex;flex-direction:column;
+    height:100dvh;
+    overflow:hidden;
+  }
+
+  /* Topbar gets simpler on mobile */
+  .topbar{
+    padding:0 14px;gap:8px;
+    flex-shrink:0;
+    height:var(--topbar);
+  }
+  .topbar-center{display:none}          /* hidden; score shown in sticky score bar instead */
+  .ats-live{display:none}
+  .btn-ghost{display:none}              /* hide export on mobile */
+  .btn-primary{font-size:11px;padding:6px 10px}
+
+  /* Score strip under topbar */
+  .score-strip{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    padding:7px 14px;font-size:11px;flex-shrink:0;
+  }
+  .score-strip .ss-label{color:var(--muted)}
+  .score-strip .ss-bar-wrap{flex:1;margin:0 10px;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+  .score-strip .ss-bar{height:100%;background:linear-gradient(90deg,#0077B6,#00B4D8);border-radius:4px;transition:width .4s}
+  .score-strip .ss-pct{color:var(--accent);font-weight:600}
+  .score-strip .ss-ats{color:var(--accent2);font-weight:600;margin-left:8px}
+
+  /* Hide desktop sidenav */
+  .sidenav{display:none}
+
+  /* Editor fills remaining space */
+  .editor{
+    flex:1;overflow-y:auto;
+    padding:14px 14px 100px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .editor-wrap{max-width:100%}
+
+  /* Resume paper adjustments */
+  .resume-head{padding:18px 16px 16px}
+  .r-name{font-size:20px}
+  .r-contacts{gap:6px}
+  .r-contact{width:140px;font-size:10.5px}
+  .resume-body{
+    grid-template-columns:1fr;
+    gap:0;padding:16px;
+  }
+  /* Right col (skills/certs/summary) goes below left col */
+  .resume-body > div:last-child{
+    border-top:1px solid var(--border-light);
+    padding-top:14px;
+    margin-top:6px;
+  }
+
+  /* Hide desktop AI panel */
+  .ai-panel{display:none}
+
+  /* ── BOTTOM NAV ── */
+  .mobile-nav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    display:flex;align-items:stretch;
+    height:54px;z-index:200;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mnav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:none;background:none;font-family:var(--font);font-size:9.5px;font-weight:500;
+    color:var(--muted);cursor:pointer;gap:2px;padding:6px 0;
+    transition:all .12s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mnav-btn .mni{font-size:18px;line-height:1;transition:transform .2s}
+  .mnav-btn:active .mni{transform:scale(.9)}
+  .mnav-btn.active{color:var(--accent);position:relative}
+  .mnav-btn.active::before{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:0 0 2px 2px}
+  .mnav-btn.ai-btn{color:var(--muted)}
+  .mnav-btn.ai-btn.active{color:var(--accent2)}
+
+  /* ── MOBILE BOTTOM SHEET ── */
+  .sheet-overlay{
+    display:none;
+    position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;
+    animation:fadeIn .2s ease;
+  }
+  .sheet-overlay.open{display:block}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  .bottom-sheet{
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--surface);border-radius:16px 16px 0 0;
+    z-index:400;max-height:88dvh;display:flex;flex-direction:column;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.32,0,.15,1);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .bottom-sheet.open{transform:translateY(0)}
+  .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
+  .sheet-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .sheet-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .sheet-title em{background:linear-gradient(135deg,#0077B6,#00B4D8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+  .sheet-close{border:none;background:none;font-size:18px;color:var(--muted);cursor:pointer;padding:4px;line-height:1}
+  .sheet-body{flex:1;overflow-y:auto;padding:14px 16px 20px;-webkit-overflow-scrolling:touch}
+
+  /* Sections sheet content */
+  .sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .sec-tile{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;padding:14px 10px;border:1px solid var(--border);border-radius:var(--r-lg);
+    background:var(--bg);cursor:pointer;font-family:var(--font);font-size:11.5px;font-weight:500;
+    color:var(--text);text-align:center;
+  }
+  .sec-tile-icon{font-size:20px}
+  .sec-tile.on{border-color:var(--accent);background:linear-gradient(135deg,var(--accent-light),var(--accent2-light));color:var(--accent)}
+
+  /* Optional sections chips */
+  .opt-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .opt-chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted)}
+  .opt-chip.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+
+  /* AI sheet uses same panel internals */
+  .sheet-body .panel-top{padding:0;border:none}
+  .sheet-body .panel-top .panel-title{display:none}
+  .sheet-body .panel-top .panel-sub{display:none}
+  .sheet-body .tabs{margin-bottom:10px}
+  .sheet-body .analyze-btn{margin-top:12px;background:linear-gradient(135deg,#0077B6,#00B4D8)}
+}
+
+@media(max-width:400px){
+  .r-name{font-size:18px}
+  .resume-head{padding:14px 12px}
+  .resume-body{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark"><span>∼</span></div>
+    <div class="logo-text">Resum<em>io</em></div>
+  </div>
+  <div class="topbar-center">
+    <div class="ats-live"><span class="live-dot"></span>ATS Live</div>
+    <span style="font-size:11px;color:var(--muted)">Score: <strong id="score-top" style="color:var(--accent2)">—</strong></span>
+  </div>
+  <div class="topbar-r">
+    <button class="btn btn-ghost" onclick="window.print()">↓ Export PDF</button>
+    <button class="btn btn-primary" onclick="analyzeResume()">✦ Analyze</button>
+  </div>
+</header>
+
+<!-- MOBILE SCORE STRIP (hidden on desktop via JS) -->
+<div class="score-strip" id="score-strip" style="display:none">
+  <span class="ss-label">Strength</span>
+  <div class="ss-bar-wrap"><div class="ss-bar" id="ss-bar" style="width:0%"></div></div>
+  <span class="ss-pct" id="ss-pct">0%</span>
+  <span class="ss-ats" id="ss-ats">ATS: —</span>
+</div>
+
+<!-- LEFT NAV (desktop) -->
+<nav class="sidenav">
+  <div class="nav-group">
+    <div class="nav-group-label">Sections</div>
+    <button class="nav-btn active"><span class="nav-icon">◉</span>Profile</button>
+    <button class="nav-btn"><span class="nav-icon">◈</span>Experience</button>
+    <button class="nav-btn"><span class="nav-icon">◎</span>Education</button>
+    <button class="nav-btn"><span class="nav-icon">◆</span>Skills</button>
+    <button class="nav-btn"><span class="nav-icon">◇</span>Projects</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Add Optional</div>
+    <div class="add-chips">
+      <span class="chip" onclick="this.classList.toggle('on')">Summary</span>
+      <span class="chip" onclick="this.classList.toggle('on')">Languages</span>
+      <span class="chip" onclick="this.classList.toggle('on')">Awards</span>
+      <span class="chip" onclick="this.classList.toggle('on')">Publications</span>
+      <span class="chip" onclick="this.classList.toggle('on')">Volunteer</span>
+      <span class="chip" onclick="this.classList.toggle('on')">Links</span>
+    </div>
+  </div>
+  <div class="strength-box">
+    <div class="strength-row">
+      <span class="strength-label">Resume Strength</span>
+      <span class="strength-pct" id="pct-val">0%</span>
+    </div>
+    <div class="bar"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+    <div class="ats-row">
+      <span class="ats-label">ATS Score</span>
+      <span class="ats-val" id="score-side">—</span>
+    </div>
+  </div>
+</nav>
+
+<!-- EDITOR -->
+<main class="editor">
+  <div class="editor-wrap">
+    <div class="resume-paper">
+
+      <!-- HEADER -->
+      <div class="resume-head">
+        <input class="r-name" id="f-name" placeholder="Your Full Name" oninput="onInput()"/>
+        <input class="r-headline" id="f-title" placeholder="Professional Title · e.g. Financial Analyst | ACCA Finalist" oninput="onInput()"/>
+        <div class="r-contacts">
+          <input class="r-contact" id="f-email" placeholder="email@domain.com" oninput="onInput()"/>
+          <input class="r-contact" id="f-phone" placeholder="+91 XXXXX XXXXX"/>
+          <input class="r-contact" id="f-linkedin" placeholder="linkedin.com/in/handle"/>
+          <input class="r-contact" id="f-loc" placeholder="Hyderabad, India"/>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="resume-body">
+
+        <!-- LEFT COL -->
+        <div>
+          <!-- EXPERIENCE -->
+          <div class="section-mb">
+            <div class="sec-title">Experience</div>
+            <div id="exp-container">
+              <div class="entry">
+                <div class="entry-row">
+                  <input class="e-company" placeholder="Company / Organisation" id="e1-co" oninput="onInput()"/>
+                  <input class="e-date" placeholder="2022 – Present" id="e1-dt"/>
+                </div>
+                <input class="e-role" placeholder="Your Job Title / Role" id="e1-rl" oninput="onInput()"/>
+                <ul class="bullets-list">
+                  <li><textarea class="e-bullet" rows="1" placeholder="Led key initiative achieving X% improvement in Y" id="e1-b1" oninput="autoGrow(this);onInput()"></textarea></li>
+                  <li><textarea class="e-bullet" rows="1" placeholder="Collaborated with X stakeholders to deliver Z outcome" id="e1-b2" oninput="autoGrow(this)"></textarea></li>
+                  <li><textarea class="e-bullet" rows="1" placeholder="Reduced [metric] by X% through [method/tool]" id="e1-b3" oninput="autoGrow(this)"></textarea></li>
+                </ul>
+              </div>
+            </div>
+            <button class="add-btn" onclick="addExp()">+ Add Experience</button>
+          </div>
+
+          <!-- EDUCATION -->
+          <div class="section-mb">
+            <div class="sec-title">Education</div>
+            <div id="edu-container">
+              <div class="entry">
+                <div class="entry-row">
+                  <input class="e-company" placeholder="University / Institution" id="e-uni" oninput="onInput()"/>
+                  <input class="e-date" placeholder="2020 – 2024" id="e-uni-dt"/>
+                </div>
+                <input class="e-role" placeholder="Degree · Major · CGPA / Grade" id="e-deg" oninput="onInput()"/>
+              </div>
+              <div class="entry" style="margin-top:8px">
+                <div class="entry-row">
+                  <input class="e-company" placeholder="Professional Qualification (e.g. ACCA)" id="e-cert" oninput="onInput()"/>
+                  <input class="e-date" placeholder="2022 – Present" id="e-cert-dt"/>
+                </div>
+                <input class="e-role" placeholder="Papers completed · Current status" id="e-cert-s"/>
+              </div>
+            </div>
+            <button class="add-btn" onclick="addEdu()">+ Add Education</button>
+          </div>
+        </div>
+
+        <!-- RIGHT COL -->
+        <div>
+          <div class="section-mb">
+            <div class="sec-title">Skills</div>
+            <div class="skill-pills" id="skill-pills"></div>
+            <div class="s-input-row">
+              <input class="s-input" id="s-inp" placeholder="Type skill + Enter" onkeydown="skillKey(event)"/>
+              <button class="s-add" onclick="addSkill()">+</button>
+            </div>
+          </div>
+
+          <div class="section-mb">
+            <div class="sec-title">Certifications</div>
+            <textarea class="small-textarea" id="f-certs" placeholder="ACCA (Advanced Level)&#10;Microsoft Excel – Advanced&#10;Bloomberg Market Concepts" oninput="onInput()"></textarea>
+          </div>
+
+          <div class="section-mb">
+            <div class="sec-title">Summary</div>
+            <textarea class="small-textarea" id="f-summary" placeholder="Finance professional with X years of experience in..." oninput="onInput()"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:10.5px;color:var(--muted)" id="hint-bar">Click any field to edit · Ctrl+Enter to analyze</div>
+  </div>
+</main>
+
+<!-- AI PANEL (desktop) -->
+<aside class="ai-panel">
+  <div class="panel-top">
+    <div class="panel-title"><span class="ai-pulse"></span>Career Advisor</div>
+    <div class="panel-sub">Smart role matching · ATS insights</div>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('jobs',this)">Jobs</button>
+      <button class="tab" onclick="switchTab('companies',this)">Companies</button>
+      <button class="tab" onclick="switchTab('tips',this)">ATS Tips</button>
+    </div>
+  </div>
+  <div class="panel-scroll" id="panel-body">
+    <div class="empty">
+      <div class="empty-icon">✦</div>
+      <div class="empty-title">Build your resume</div>
+      <div class="empty-body">Fill in your details and Resumio will suggest matching roles, companies, and ATS improvements.</div>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <button class="analyze-btn" id="abtn" onclick="analyzeResume()">✦ Get AI Suggestions</button>
+  </div>
+</aside>
+
+</div><!-- /.app -->
+
+<!-- ══ MOBILE BOTTOM NAV ══ -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mnav-btn active" id="mnav-edit" onclick="mnavSwitch('edit',this)">
+    <span class="mni">✏️</span>Resume
+  </button>
+  <button class="mnav-btn" id="mnav-sections" onclick="openSheet('sections-sheet')">
+    <span class="mni">☰</span>Sections
+  </button>
+  <button class="mnav-btn ai-btn" id="mnav-ai" onclick="openSheet('ai-sheet')">
+    <span class="mni">✦</span>Insights
+  </button>
+  <button class="mnav-btn" onclick="window.print()">
+    <span class="mni">↗</span>Export
+  </button>
+</nav>
+
+<!-- ══ SECTIONS BOTTOM SHEET ══ -->
+<div class="sheet-overlay" id="sections-overlay" onclick="closeSheet('sections-sheet')"></div>
+<div class="bottom-sheet" id="sections-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Sections & Settings</span>
+    <button class="sheet-close" onclick="closeSheet('sections-sheet')">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px">Core Sections</div>
+    <div class="sec-grid">
+      <div class="sec-tile on"><span class="sec-tile-icon">👤</span>Profile</div>
+      <div class="sec-tile on"><span class="sec-tile-icon">💼</span>Experience</div>
+      <div class="sec-tile on"><span class="sec-tile-icon">🎓</span>Education</div>
+      <div class="sec-tile on"><span class="sec-tile-icon">⚡</span>Skills</div>
+      <div class="sec-tile on"><span class="sec-tile-icon">📜</span>Certifications</div>
+      <div class="sec-tile on"><span class="sec-tile-icon">📝</span>Summary</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin:16px 0 8px;font-weight:500;text-transform:uppercase;letter-spacing:.8px">Add Optional</div>
+    <div class="opt-chips">
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Languages</span>
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Awards</span>
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Publications</span>
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Volunteer</span>
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Projects</span>
+      <span class="opt-chip" onclick="this.classList.toggle('on')">Links</span>
+    </div>
+    <!-- Strength in sheet -->
+    <div style="margin-top:18px;padding:14px;background:var(--bg);border-radius:var(--r-lg);border:1px solid var(--border-light)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600">Resume Strength</span>
+        <span style="font-size:12px;font-weight:600;color:var(--accent)" id="sh-pct">0%</span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="sh-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light)">
+        <span style="font-size:11px;color:var(--muted)">ATS Score</span>
+        <span style="font-size:12px;font-weight:600;color:var(--accent2)" id="sh-ats">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AI BOTTOM SHEET ══ -->
+<div class="sheet-overlay" id="ai-overlay" onclick="closeSheet('ai-sheet')"></div>
+<div class="bottom-sheet" id="ai-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title"><span class="ai-pulse"></span><em>Career</em> Advisor</span>
+    <button class="sheet-close" onclick="closeSheet('ai-sheet')">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="panel-top">
+      <div class="tabs">
+        <button class="tab on" onclick="switchTab('jobs',this)">Jobs</button>
+        <button class="tab" onclick="switchTab('companies',this)">Companies</button>
+        <button class="tab" onclick="switchTab('tips',this)">ATS Tips</button>
+      </div>
+    </div>
+    <div id="panel-body-mobile">
+      <div class="empty">
+        <div class="empty-icon">✦</div>
+        <div class="empty-title">Start building your resume</div>
+        <div class="empty-body">AI will suggest matching roles, companies, and ATS improvements as you fill in your details.</div>
+      </div>
+    </div>
+    <button class="analyze-btn" id="abtn-mobile" onclick="analyzeResume()">✦ Get AI Suggestions</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── STATE ── */
+const skills = [];
+let tab = 'jobs';
+let analysis = null;
+const isMobile = () => window.innerWidth <= 768;
+
+/* ── INIT: show mobile UI elements ── */
+function initMobile(){
+  if(isMobile()){
+    document.getElementById('score-strip').style.display='flex';
+    document.getElementById('mobile-nav').style.display='flex';
+    document.getElementById('hint-bar').textContent='Tap any field to edit';
+  }
+}
+initMobile();
+window.addEventListener('resize', initMobile);
+
+/* ── BOTTOM SHEETS ── */
+function openSheet(id){
+  document.getElementById(id).classList.add('open');
+  document.getElementById(id.replace('-sheet','-overlay')).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(id){
+  document.getElementById(id).classList.remove('open');
+  document.getElementById(id.replace('-sheet','-overlay')).classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function mnavSwitch(view, el){
+  document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── UTILS ── */
+function autoGrow(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
+function skillKey(e){if(e.key==='Enter'||e.key===','){e.preventDefault();addSkill()}}
+function addSkill(){
+  const inp=document.getElementById('s-inp');
+  const v=inp.value.trim().replace(/,$/,'');
+  if(v&&!skills.includes(v)){skills.push(v);renderSkills();onInput();}
+  inp.value='';
+}
+function removeSkill(i){skills.splice(i,1);renderSkills();onInput()}
+function renderSkills(){
+  document.getElementById('skill-pills').innerHTML=skills.map((s,i)=>`<button class="s-pill" onclick="removeSkill(${i})">${s} ×</button>`).join('');
+}
+
+/* ── DATA ── */
+function getData(){
+  return {
+    name:document.getElementById('f-name').value,
+    title:document.getElementById('f-title').value,
+    email:document.getElementById('f-email').value,
+    location:document.getElementById('f-loc').value,
+    co:document.getElementById('e1-co').value,
+    role:document.getElementById('e1-rl').value,
+    bullets:[document.getElementById('e1-b1').value,document.getElementById('e1-b2').value,document.getElementById('e1-b3').value].filter(Boolean).join('\n'),
+    uni:document.getElementById('e-uni').value,
+    deg:document.getElementById('e-deg').value,
+    cert:document.getElementById('e-cert').value,
+    certs:document.getElementById('f-certs').value,
+    summary:document.getElementById('f-summary').value,
+    skills:skills.join(', ')
+  };
+}
+
+/* ── PROGRESS ── */
+function calcProgress(){
+  const d=getData();
+  const checks=[d.name,d.email,d.co,d.role,d.uni||d.cert,d.skills,d.bullets,d.certs||d.summary];
+  const filled=checks.filter(Boolean).length;
+  const pct=Math.round((filled/8)*100);
+  // Desktop
+  if(document.getElementById('bar-fill')){
+    document.getElementById('bar-fill').style.width=pct+'%';
+    document.getElementById('pct-val').textContent=pct+'%';
+  }
+  // Mobile strip
+  document.getElementById('ss-bar').style.width=pct+'%';
+  document.getElementById('ss-pct').textContent=pct+'%';
+  // Sheet
+  document.getElementById('sh-bar').style.width=pct+'%';
+  document.getElementById('sh-pct').textContent=pct+'%';
+}
+
+let inputTimer;
+function onInput(){
+  calcProgress();
+  clearTimeout(inputTimer);
+  inputTimer=setTimeout(()=>{
+    const d=getData();
+    if((d.name&&d.co&&d.role)||(d.skills&&skills.length>=3&&(d.cert||d.uni))){
+      analyzeResume(true);
+    }
+  },2500);
+}
+
+/* ── PROMPT ── */
+function buildPrompt(d){
+  const loc=d.location||'India';
+  return `You are a career advisor AI in a resume builder. Analyze this resume and return ONLY valid JSON, no markdown, no extra text.
+
+Resume:
+Name: ${d.name||'Not provided'}
+Title: ${d.title||'Not provided'}
+Location: ${loc}
+Experience: ${d.co} - ${d.role}
+${d.bullets}
+Education: ${d.uni} ${d.deg} | ${d.cert}
+Certifications: ${d.certs}
+Skills: ${d.skills}
+Summary: ${d.summary}
+
+Return exactly:
+{"ats_score":<0-100>,"jobs":[{"title":"<specific role>","match":<60-98>,"companies":["<co1>","<co2>","<co3>"],"matching_skills":["<skill>"],"missing_skills":["<skill to add>"],"salary_range":"<e.g. ₹8-14 LPA>","insight":"<1 sentence why good fit>"}],"company_matches":[{"company":"<name>","why":"<reason>","roles":["<role1>","<role2>"],"type":"<Big 4|MNC|Startup|BFSI|etc>"}],"tips":[{"type":"warning","title":"<short>","detail":"<actionable>"},{"type":"good","title":"<short>","detail":"<positive>"}]}
+
+Rules: Generate 5 specific jobs relevant to their background. If ACCA/accounting/finance focus: suggest finance, audit, tax roles. Mix seniority. For ${loc} bias toward companies active there. 4 company matches. 4 tips (mix of warnings and positives). Be precise and realistic.`;
+}
+
+/* ── ANALYZE ── */
+async function analyzeResume(silent=false){
+  const btn=document.getElementById('abtn');
+  const btnM=document.getElementById('abtn-mobile');
+  const body=document.getElementById('panel-body');
+  const bodyM=document.getElementById('panel-body-mobile');
+  const d=getData();
+  const hasContent=d.name||d.co||d.skills||d.cert;
+  if(!hasContent){
+    if(!silent){
+      const msg=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">Fill in at least your name, experience, or skills first.</div>`;
+      body.innerHTML=msg; bodyM.innerHTML=msg;
+    }
+    return;
+  }
+  btn.disabled=true; btn.textContent='⟳ Analyzing…';
+  btnM.disabled=true; btnM.textContent='⟳ Analyzing…';
+  const thinking=`<div class="thinking"><div class="dots"><span></span><span></span><span></span></div><span>Reading your resume…</span></div>`;
+  body.innerHTML=thinking; bodyM.innerHTML=thinking;
+
+  if(!silent && isMobile()) openSheet('ai-sheet');
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:buildPrompt(d)}]})
+    });
+    const j=await res.json();
+    const raw=j.content?.map(b=>b.text||'').join('');
+    analysis=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderTab();
+    const s=analysis.ats_score||'—';
+    document.getElementById('score-top').textContent=s+'/100';
+    document.getElementById('score-side').textContent=s+'/100';
+    document.getElementById('ss-ats').textContent='ATS: '+s;
+    document.getElementById('sh-ats').textContent=s+'/100';
+  } catch(e){
+    const err=`<div style="padding:14px;font-size:11px;color:var(--warn)">Analysis failed. Add more resume content and try again.</div>`;
+    body.innerHTML=err; bodyM.innerHTML=err;
+  }
+  btn.disabled=false; btn.textContent='↺ Refresh';
+  btnM.disabled=false; btnM.textContent='↺ Refresh Suggestions';
+}
+
+/* ── TABS ── */
+function switchTab(t,el){
+  tab=t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  if(analysis) renderTab();
+  else{
+    const msg=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">Click "Get AI Suggestions" to analyze your resume first.</div>`;
+    document.getElementById('panel-body').innerHTML=msg;
+    document.getElementById('panel-body-mobile').innerHTML=msg;
+  }
+}
+
+/* ── RENDER RESULTS ── */
+function renderTab(){
+  const html=buildTabHtml();
+  document.getElementById('panel-body').innerHTML=html;
+  document.getElementById('panel-body-mobile').innerHTML=html;
+}
+function buildTabHtml(){
+  if(!analysis) return '';
+  if(tab==='jobs'){
+    const jobs=analysis.jobs||[];
+    if(!jobs.length) return `<div class="empty"><div class="empty-body">No job suggestions yet. Add more details.</div></div>`;
+    return jobs.map(j=>{
+      const mc=j.match>=85?'m-high':j.match>=70?'m-mid':'m-low';
+      const haveChips=(j.matching_skills||[]).map(s=>`<span class="s-chip s-chip-have">${s}</span>`).join('');
+      const missChips=(j.missing_skills||[]).map(s=>`<span class="s-chip s-chip-miss">+ ${s}</span>`).join('');
+      const coTags=(j.companies||[]).map(c=>`<span class="co-tag">${c}</span>`).join('');
+      return `<div class="suggestion-card">
+        <div class="sc-top"><div class="sc-role">${j.title}</div><span class="match-badge ${mc}">${j.match}%</span></div>
+        <div class="sc-companies">${coTags}</div>
+        ${j.salary_range?`<div class="sc-salary">💼 ${j.salary_range}</div>`:''}
+        <div class="sc-chips">${haveChips}${missChips}</div>
+        <div class="sc-insight">${j.insight||''}</div>
+        <button class="apply-btn" onclick="useRole('${j.title.replace(/'/g,"\\'")}')" >Apply to resume →</button>
+      </div>`;
+    }).join('');
+  } else if(tab==='companies'){
+    const cos=analysis.company_matches||[];
+    if(!cos.length) return `<div class="empty"><div class="empty-body">No company matches yet.</div></div>`;
+    return cos.map(c=>`<div class="suggestion-card">
+      <div class="sc-top"><div class="sc-role">${c.company}</div><span class="match-badge m-mid">${c.type||'Company'}</span></div>
+      <div class="sc-insight">${c.why}</div>
+      <div class="sc-chips">${(c.roles||[]).map(r=>`<span class="s-chip s-chip-have">${r}</span>`).join('')}</div>
+    </div>`).join('');
+  } else {
+    const tips=analysis.tips||[];
+    return `<div style="margin-bottom:10px;font-size:11px;color:var(--muted)">ATS Score: <strong style="color:var(--accent2)">${analysis.ats_score||'—'}/100</strong></div>`+
+      tips.map(t=>`<div class="tip-card ${t.type==='good'?'tip-good':'tip-warn'}"><span class="tip-title">${t.title}</span>${t.detail}</div>`).join('');
+  }
+}
+
+/* ── ACTIONS ── */
+function useRole(title){
+  document.getElementById('f-title').value=title;
+  toast('Title updated: '+title);
+  if(isMobile()) closeSheet('ai-sheet');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(window._toast);
+  window._toast=setTimeout(()=>t.style.opacity='0',2500);
+}
+
+let expCount=1;
+function addExp(){
+  expCount++;
+  const ct=document.getElementById('exp-container');
+  const d=document.createElement('div');
+  d.className='entry';d.style.marginTop='12px';
+  d.innerHTML=`<div class="entry-row"><input class="e-company" placeholder="Company / Organisation" oninput="onInput()"/><input class="e-date" placeholder="Year – Year"/></div><input class="e-role" placeholder="Job Title" oninput="onInput()"/><ul class="bullets-list"><li><textarea class="e-bullet" rows="1" placeholder="Key achievement with measurable result" oninput="autoGrow(this);onInput()"></textarea></li></ul>`;
+  ct.appendChild(d);
+  d.querySelector('.e-company').focus();
+}
+
+function addEdu(){
+  const ct=document.getElementById('edu-container');
+  const d=document.createElement('div');
+  d.className='entry';d.style.marginTop='10px';
+  d.innerHTML=`<div class="entry-row"><input class="e-company" placeholder="Institution" oninput="onInput()"/><input class="e-date" placeholder="Year"/></div><input class="e-role" placeholder="Degree / Qualification"/>`;
+  ct.appendChild(d);
+  d.querySelector('.e-company').focus();
+}
+
+/* ── KEYBOARD ── */
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter') analyzeResume()});
+
+/* ── SWIPE-DOWN TO CLOSE SHEETS ── */
+['ai-sheet','sections-sheet'].forEach(id=>{
+  const el=document.getElementById(id);
+  let startY=0;
+  el.addEventListener('touchstart',e=>{startY=e.touches[0].clientY},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dy=e.changedTouches[0].clientY-startY;
+    if(dy>80) closeSheet(id);
+  },{passive:true});
+});
+</script>
+</body>
+</html>
