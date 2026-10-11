@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Resumio is deployed under /resumio/. Keep this file at the domain root
+# (https://f9xr.org/robots.txt) and update the sitemap URL accordingly.
+Sitemap: https://f9xr.org/resumio/sitemap.xml

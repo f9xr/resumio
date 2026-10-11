@@ -1,0 +1,11 @@
+/* TEAM */
+Owner: F9XR
+Contact: hello@f9xr.org
+Site: https://f9xr.org/resumio/
+
+/* THANKS */
+Design system source: Discord marketing design language (see assets/md/DESIGN.md)
+Local AI analysis engine: custom, runs fully in the browser
+
+/* UPDATED */
+2026-10-12

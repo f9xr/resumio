@@ -1,0 +1,18 @@
+{
+  "name": "Resumio - Free AI Resume Builder & ATS Score Checker",
+  "short_name": "Resumio",
+  "description": "Build a standout resume for free. Instant ATS score, smart job matches, company suggestions and writing tips.",
+  "start_url": "/resumio/",
+  "scope": "/resumio/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0d3a",
+  "theme_color": "#0a0d3a",
+  "lang": "en",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    { "src": "/resumio/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/resumio/assets/img/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/resumio/assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
